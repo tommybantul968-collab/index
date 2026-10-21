@@ -682,8 +682,9 @@
   <!-- Modal Tugas -->
   <div id="modal-task" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-slate-100 dark:border-slate-800">
-      <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Tambah Tugas Baru</h3>
+      <h3 id="task-modal-title" class="text-base font-extrabold text-slate-900 dark:text-white">Tambah / Edit Tugas Akademik</h3>
       <form onsubmit="saveTask(event)" class="space-y-3">
+        <input type="hidden" id="task-id">
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Tugas</label><input type="text" id="task-name" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
         <div class="grid grid-cols-2 gap-2">
           <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Jenis</label><select id="task-type" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Individu">Individu</option><option value="Kelompok">Kelompok</option></select></div>
@@ -1422,7 +1423,6 @@ function selectCalendarDate(dateStr) {
   detailsEl.innerHTML = html;
 }
 
-// PERBAIKAN 1: Pengecekan Destroy Instance Chart agar tidak bentrok
 function renderFlowchart() {
   const ctx = document.getElementById('financeFlowchart');
   if (!ctx) return;
@@ -1536,27 +1536,100 @@ function renderTasks() {
         <td class="p-4">
           ${isAuthenticated ? `<select onchange="updateTaskSub('${t.id}', this.value)" class="px-2 py-1 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-transparent dark:text-white ${subClass}"><option value="Belum dikumpulkan" ${t.submission==='Belum dikumpulkan'?'selected':''}>Belum</option><option value="Sudah dikumpulkan" ${t.submission==='Sudah dikumpulkan'?'selected':''}>Sudah</option></select>` : `<span class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold ${subClass}">${t.submission}</span>`}
         </td>
-        <td class="p-4 text-xs text-slate-600 dark:text-slate-300">${escapeHtml(t.summary || '-')}</td>
-        <td class="p-4 text-center">${isAuthenticated ? `<button onclick="deleteTask('${t.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</td>
+        <td class="p-4 text-xs text-slate-600 dark:text-slate-300">
+          <div>${escapeHtml(t.summary || '-')}</div>
+          ${t.fileData ? `<a href="${t.fileData}" download="${escapeHtml(t.fileName || 'file_tugas')}" class="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline"><i data-lucide="download" class="w-3 h-3"></i> ${escapeHtml(t.fileName || 'Unduh File')}</a>` : ''}
+        </td>
+        <td class="p-4 text-center">
+          ${isAuthenticated ? `
+            <div class="flex items-center justify-center gap-1">
+              <button onclick="editTask('${t.id}')" class="p-1 text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Edit Tugas"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+              <button onclick="deleteTask('${t.id}')" class="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Hapus Tugas"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          ` : ''}
+        </td>
       </tr>`;
   }).join('');
+  initLucide();
 }
 
 function updateTaskStatus(id, val) { const t = tasks.find(x => x.id === id); if(t) { t.status = val; saveLocalStorageData(); } }
 function updateTaskSub(id, val) { const t = tasks.find(x => x.id === id); if(t) { t.submission = val; saveLocalStorageData(); } }
-function openTaskModal() { if (!isAuthenticated) return openLoginModal(); document.getElementById('modal-task').classList.remove('hidden'); }
+
+function openTaskModal() { 
+  if (!isAuthenticated) return openLoginModal();
+  document.getElementById('task-id').value = '';
+  document.getElementById('task-name').value = '';
+  document.getElementById('task-type').value = 'Individu';
+  document.getElementById('task-lecturer').value = '';
+  document.getElementById('task-deadline').value = '';
+  document.getElementById('task-status').value = 'Belum dikerjakan';
+  document.getElementById('task-submission').value = 'Belum dikumpulkan';
+  document.getElementById('task-summary').value = '';
+  document.getElementById('task-file-input').value = '';
+  document.getElementById('modal-task').classList.remove('hidden'); 
+}
+
+function editTask(id) {
+  if (!isAuthenticated) return openLoginModal();
+  const t = tasks.find(x => x.id === id);
+  if (t) {
+    document.getElementById('task-id').value = t.id;
+    document.getElementById('task-name').value = t.name;
+    document.getElementById('task-type').value = t.type;
+    document.getElementById('task-lecturer').value = t.lecturer;
+    document.getElementById('task-deadline').value = t.deadline;
+    document.getElementById('task-status').value = t.status;
+    document.getElementById('task-submission').value = t.submission;
+    document.getElementById('task-summary').value = t.summary || '';
+    document.getElementById('task-file-input').value = '';
+    document.getElementById('modal-task').classList.remove('hidden');
+  }
+}
+
 function closeTaskModal() { document.getElementById('modal-task').classList.add('hidden'); }
+
 function saveTask(e) {
   e.preventDefault();
+  const id = document.getElementById('task-id').value;
   const fileInput = document.getElementById('task-file-input');
-  tasks.push({
-    id: 'task_' + Date.now(), name: document.getElementById('task-name').value, type: document.getElementById('task-type').value,
-    lecturer: document.getElementById('task-lecturer').value, deadline: document.getElementById('task-deadline').value,
-    status: document.getElementById('task-status').value, submission: document.getElementById('task-submission').value,
-    summary: document.getElementById('task-summary').value, fileName: fileInput.files[0] ? fileInput.files[0].name : null
-  });
-  saveLocalStorageData(); closeTaskModal(); showToast('Tugas disimpan', 'success');
+  
+  const processTaskData = (fileData, fileName) => {
+    const existing = id ? tasks.find(x => x.id === id) : null;
+    const data = {
+      id: id || 'task_' + Date.now(),
+      name: document.getElementById('task-name').value,
+      type: document.getElementById('task-type').value,
+      lecturer: document.getElementById('task-lecturer').value,
+      deadline: document.getElementById('task-deadline').value,
+      status: document.getElementById('task-status').value,
+      submission: document.getElementById('task-submission').value,
+      summary: document.getElementById('task-summary').value,
+      fileName: fileName || (existing ? existing.fileName : null),
+      fileData: fileData || (existing ? existing.fileData : null)
+    };
+
+    if (id) {
+      tasks = tasks.map(x => x.id === id ? data : x);
+    } else {
+      tasks.push(data);
+    }
+    saveLocalStorageData();
+    closeTaskModal();
+    showToast('Tugas berhasil disimpan', 'success');
+  };
+
+  if (fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(uploadEvent) {
+      processTaskData(uploadEvent.target.result, fileInput.files[0].name);
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    processTaskData(null, null);
+  }
 }
+
 function deleteTask(id) { if(confirm('Hapus tugas?')) { tasks = tasks.filter(x => x.id !== id); saveLocalStorageData(); } }
 
 function renderAgendas() {
@@ -1595,7 +1668,13 @@ function renderAgendas() {
           <div class="mt-3 text-xs text-slate-500 font-semibold space-y-1">
             <div><i data-lucide="clock" class="w-3.5 h-3.5 inline"></i> ${formatDateTime(a.datetime)}</div>
             <div><i data-lucide="map-pin" class="w-3.5 h-3.5 inline"></i> ${escapeHtml(a.location)}</div>
-            ${a.invitationFile ? `<div class="text-sky-600 dark:text-sky-400 font-bold flex items-center gap-1 mt-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Undangan: ${escapeHtml(a.invitationFile)}</div>` : ''}
+            ${a.invitationFile ? `
+              <div class="mt-2">
+                <a href="${a.fileData || '#'}" download="${escapeHtml(a.invitationFile)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold rounded-xl border border-sky-200 dark:border-sky-900 hover:bg-sky-100 transition-all">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Buka/Unduh: ${escapeHtml(a.invitationFile)}
+                </a>
+              </div>
+            ` : ''}
           </div>
         </div>
         ${isAuthenticated ? `<div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2"><button onclick="editAgenda('${a.id}')" class="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Edit Agenda"><i data-lucide="edit-3" class="w-4 h-4"></i></button><button onclick="deleteAgenda('${a.id}')" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Hapus Agenda"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
@@ -1603,6 +1682,7 @@ function renderAgendas() {
   }).join('');
   
   updateAllCountdowns();
+  initLucide();
 }
 
 function updateAgendaStatus(id, val) {
@@ -1639,6 +1719,7 @@ function openAgendaModal() {
   document.getElementById('agenda-datetime').value = '';
   document.getElementById('agenda-duration').value = '1';
   document.getElementById('agenda-location').value = '';
+  document.getElementById('agenda-invitation-file').value = '';
   document.getElementById('modal-agenda').classList.remove('hidden'); 
 }
 
@@ -1653,6 +1734,7 @@ function editAgenda(id) {
     document.getElementById('agenda-datetime').value = a.datetime;
     document.getElementById('agenda-duration').value = a.duration || 1;
     document.getElementById('agenda-location').value = a.location;
+    document.getElementById('agenda-invitation-file').value = '';
     document.getElementById('modal-agenda').classList.remove('hidden');
   }
 }
@@ -1663,31 +1745,45 @@ function saveAgenda(e) {
   e.preventDefault();
   const id = document.getElementById('agenda-id').value;
   const invitationFile = document.getElementById('agenda-invitation-file').files[0];
-  const data = {
-    id: id || 'agenda_' + Date.now(), 
-    title: document.getElementById('agenda-title').value, 
-    criteria: document.getElementById('agenda-criteria').value,
-    status: document.getElementById('agenda-status').value, 
-    datetime: document.getElementById('agenda-datetime').value,
-    duration: document.getElementById('agenda-duration').value, 
-    location: document.getElementById('agenda-location').value,
-    invitationFile: invitationFile ? invitationFile.name : (id ? (agendas.find(x => x.id === id)?.invitationFile || null) : null)
+
+  const processAgendaData = (fileData, fileName) => {
+    const existing = id ? agendas.find(x => x.id === id) : null;
+    const data = {
+      id: id || 'agenda_' + Date.now(), 
+      title: document.getElementById('agenda-title').value, 
+      criteria: document.getElementById('agenda-criteria').value,
+      status: document.getElementById('agenda-status').value, 
+      datetime: document.getElementById('agenda-datetime').value,
+      duration: document.getElementById('agenda-duration').value, 
+      location: document.getElementById('agenda-location').value,
+      invitationFile: fileName || (existing ? existing.invitationFile : null),
+      fileData: fileData || (existing ? existing.fileData : null)
+    };
+
+    if (id) {
+      agendas = agendas.map(x => x.id === id ? data : x);
+    } else {
+      agendas.push(data);
+    }
+
+    saveLocalStorageData(); 
+    closeAgendaModal(); 
+    showToast('Agenda berhasil disimpan', 'success');
   };
 
-  if (id) {
-    agendas = agendas.map(x => x.id === id ? data : x);
+  if (invitationFile) {
+    const reader = new FileReader();
+    reader.onload = function(uploadEvent) {
+      processAgendaData(uploadEvent.target.result, invitationFile.name);
+    };
+    reader.readAsDataURL(invitationFile);
   } else {
-    agendas.push(data);
+    processAgendaData(null, null);
   }
-
-  saveLocalStorageData(); 
-  closeAgendaModal(); 
-  showToast('Agenda berhasil disimpan', 'success');
 }
 
 function deleteAgenda(id) { if(confirm('Hapus agenda?')) { agendas = agendas.filter(x => x.id !== id); saveLocalStorageData(); } }
 
-// PERBAIKAN 2: Perhitungan persentase pemasukan & pengeluaran dinamis
 function renderFinance() {
   const groupFin = document.getElementById('finance-buttons-group');
   if (isFinanceUnlocked && isAuthenticated) {
