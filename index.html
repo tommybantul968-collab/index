@@ -812,10 +812,15 @@ async function fetchCloudData(silent = false) {
   try {
     const res = await fetch(SCRIPT_URL);
     const data = await res.json();
-    tasks = data.tasks || [];
-    agendas = data.agendas || [];
-    finances = data.finances || [];
-    schedules = data.schedules || defaultSchedules;
+    
+    // Perbaikan: Hanya update data jika server benar-benar mengembalikan data
+    if (data) {
+      if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) tasks = data.tasks;
+      if (data.agendas && Array.isArray(data.agendas) && data.agendas.length > 0) agendas = data.agendas;
+      if (data.finances && Array.isArray(data.finances) && data.finances.length > 0) finances = data.finances;
+      if (data.schedules && Array.isArray(data.schedules) && data.schedules.length > 0) schedules = data.schedules;
+    }
+    
     isDataFetched = true;
     refreshAllViews();
   } catch (err) {
