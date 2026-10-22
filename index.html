@@ -1705,18 +1705,23 @@ function renderAgendas() {
 
 function previewAgendaDoc(id) {
   const ag = agendas.find(x => x.id === id);
-  if (!ag || !ag.fileData) return alert('Berkas tidak ditemukan.');
+  
+  // Perbaikan: Validasi jika objek agenda atau data file-nya tidak ada
+  if (!ag || !ag.fileData) {
+    showToast('Berkas surat/undangan belum diunggah untuk agenda ini.', 'danger');
+    return;
+  }
   
   const titleEl = document.getElementById('preview-doc-title');
   const contentEl = document.getElementById('preview-doc-content');
-  titleEl.innerHTML = `<i data-lucide="file-text" class="w-5 h-5 text-sky-600"></i> Pratinjau: ${escapeHtml(ag.invitationFile)}`;
+  titleEl.innerHTML = `<i data-lucide="file-text" class="w-5 h-5 text-sky-600"></i> Pratinjau: ${escapeHtml(ag.invitationFile || 'Dokumen Agenda')}`;
   
   if (ag.fileData.startsWith('data:image/')) {
     contentEl.innerHTML = `<img src="${ag.fileData}" class="max-h-[60vh] object-contain rounded-xl shadow-md" alt="Pratinjau Surat">`;
   } else if (ag.fileData.startsWith('data:application/pdf')) {
     contentEl.innerHTML = `<iframe src="${ag.fileData}" class="w-full h-[60vh] rounded-xl border-0"></iframe>`;
   } else {
-    contentEl.innerHTML = `<div class="text-center p-6"><p class="text-xs text-slate-500 mb-3">Format berkas tidak mendukung pratinjau langsung.</p><a href="${ag.fileData}" download="${ag.invitationFile}" class="px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold">Unduh Berkas</a></div>`;
+    contentEl.innerHTML = `<div class="text-center p-6"><p class="text-xs text-slate-500 mb-3">Format berkas tidak mendukung pratinjau langsung.</p><a href="${ag.fileData}" download="${escapeHtml(ag.invitationFile || 'dokumen')}" class="px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold shadow-md">Unduh Berkas</a></div>`;
   }
   
   document.getElementById('modal-preview-doc').classList.remove('hidden');
@@ -1790,6 +1795,8 @@ function saveAgenda(e) {
 
   const processAgendaData = (fileData, fileName) => {
     const existing = id ? agendas.find(x => x.id === id) : null;
+    
+    // Perbaikan: Memastikan file lama tetap dipertahankan jika tidak mengunggah file baru saat mode edit
     const data = {
       id: id || 'agenda_' + Date.now(), 
       title: document.getElementById('agenda-title').value, 
@@ -1820,6 +1827,7 @@ function saveAgenda(e) {
     };
     reader.readAsDataURL(invitationFile);
   } else {
+    // Jika tidak memilih file baru, teruskan nilai yang sudah ada sebelumnya
     processAgendaData(undefined, undefined);
   }
 }
