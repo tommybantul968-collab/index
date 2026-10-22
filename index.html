@@ -592,6 +592,24 @@
     </div>
   </div>
 
+  <!-- MODAL PRATINJAU DOKUMEN / SURAT AGENDA -->
+  <div id="modal-preview-doc" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 id="preview-doc-title" class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-sky-600"></i> Pratinjau Berkas Undangan
+        </h3>
+        <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="preview-doc-content" class="flex-1 overflow-auto flex items-center justify-center min-h-[350px] bg-slate-100 dark:bg-slate-800/50 rounded-2xl p-2 border border-slate-200 dark:border-slate-700">
+        <!-- Render preview gambar / iframe pdf -->
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <button onclick="closePreviewModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-all">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL PENCARIAN GLOBAL -->
   <div id="modal-search" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-start justify-center pt-20 p-4">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 border border-slate-100 dark:border-slate-800">
@@ -1605,8 +1623,8 @@ function saveTask(e) {
       status: document.getElementById('task-status').value,
       submission: document.getElementById('task-submission').value,
       summary: document.getElementById('task-summary').value,
-      fileName: fileName || (existing ? existing.fileName : null),
-      fileData: fileData || (existing ? existing.fileData : null)
+      fileName: fileName !== undefined ? fileName : (existing ? existing.fileName : null),
+      fileData: fileData !== undefined ? fileData : (existing ? existing.fileData : null)
     };
 
     if (id) {
@@ -1626,7 +1644,7 @@ function saveTask(e) {
     };
     reader.readAsDataURL(fileInput.files[0]);
   } else {
-    processTaskData(null, null);
+    processTaskData(undefined, undefined);
   }
 }
 
@@ -1669,10 +1687,10 @@ function renderAgendas() {
             <div><i data-lucide="clock" class="w-3.5 h-3.5 inline"></i> ${formatDateTime(a.datetime)}</div>
             <div><i data-lucide="map-pin" class="w-3.5 h-3.5 inline"></i> ${escapeHtml(a.location)}</div>
             ${a.invitationFile ? `
-              <div class="mt-2">
-                <a href="${a.fileData || '#'}" download="${escapeHtml(a.invitationFile)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold rounded-xl border border-sky-200 dark:border-sky-900 hover:bg-sky-100 transition-all">
-                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Buka/Unduh: ${escapeHtml(a.invitationFile)}
-                </a>
+              <div class="mt-2 flex items-center gap-2">
+                <button onclick="previewAgendaDoc('${a.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold rounded-xl border border-sky-200 dark:border-sky-900 hover:bg-sky-100 transition-all">
+                  <i data-lucide="eye" class="w-3.5 h-3.5"></i> Lihat Surat: ${escapeHtml(a.invitationFile)}
+                </button>
               </div>
             ` : ''}
           </div>
@@ -1683,6 +1701,30 @@ function renderAgendas() {
   
   updateAllCountdowns();
   initLucide();
+}
+
+function previewAgendaDoc(id) {
+  const ag = agendas.find(x => x.id === id);
+  if (!ag || !ag.fileData) return alert('Berkas tidak ditemukan.');
+  
+  const titleEl = document.getElementById('preview-doc-title');
+  const contentEl = document.getElementById('preview-doc-content');
+  titleEl.innerHTML = `<i data-lucide="file-text" class="w-5 h-5 text-sky-600"></i> Pratinjau: ${escapeHtml(ag.invitationFile)}`;
+  
+  if (ag.fileData.startsWith('data:image/')) {
+    contentEl.innerHTML = `<img src="${ag.fileData}" class="max-h-[60vh] object-contain rounded-xl shadow-md" alt="Pratinjau Surat">`;
+  } else if (ag.fileData.startsWith('data:application/pdf')) {
+    contentEl.innerHTML = `<iframe src="${ag.fileData}" class="w-full h-[60vh] rounded-xl border-0"></iframe>`;
+  } else {
+    contentEl.innerHTML = `<div class="text-center p-6"><p class="text-xs text-slate-500 mb-3">Format berkas tidak mendukung pratinjau langsung.</p><a href="${ag.fileData}" download="${ag.invitationFile}" class="px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold">Unduh Berkas</a></div>`;
+  }
+  
+  document.getElementById('modal-preview-doc').classList.remove('hidden');
+  initLucide();
+}
+
+function closePreviewModal() {
+  document.getElementById('modal-preview-doc').classList.add('hidden');
 }
 
 function updateAgendaStatus(id, val) {
@@ -1756,8 +1798,8 @@ function saveAgenda(e) {
       datetime: document.getElementById('agenda-datetime').value,
       duration: document.getElementById('agenda-duration').value, 
       location: document.getElementById('agenda-location').value,
-      invitationFile: fileName || (existing ? existing.invitationFile : null),
-      fileData: fileData || (existing ? existing.fileData : null)
+      invitationFile: fileName !== undefined ? fileName : (existing ? existing.invitationFile : null),
+      fileData: fileData !== undefined ? fileData : (existing ? existing.fileData : null)
     };
 
     if (id) {
@@ -1778,7 +1820,7 @@ function saveAgenda(e) {
     };
     reader.readAsDataURL(invitationFile);
   } else {
-    processAgendaData(null, null);
+    processAgendaData(undefined, undefined);
   }
 }
 
