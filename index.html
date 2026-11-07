@@ -147,7 +147,7 @@
     <div id="auth-lock-banner" class="hidden p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200 shadow-xs">
       <div class="flex items-center gap-3">
         <div class="p-2.5 bg-amber-500 text-white rounded-xl shadow-xs"><i data-lucide="eye" class="w-4 h-4"></i></div>
-        <p class="text-xs sm:text-sm font-medium">Anda dalam <strong>Mode Tamu (Lihat-Saja)</strong>. Gunakan <strong>Ekspor Data</strong> di menu Settings untuk mengunduh berkas[cite: 6].</p>
+        <p class="text-xs sm:text-sm font-medium">Anda dalam <strong>Mode Tamu (Lihat-Saja)</strong>. Gunakan <strong>Ekspor Data</strong> di menu Settings untuk mengunduh berkas.</p>
       </div>
       <button onclick="openLoginModal()" class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-xl shadow-md hover:bg-amber-700 transition-all whitespace-nowrap flex items-center gap-1.5">
         <i data-lucide="key-round" class="w-3.5 h-3.5"></i> LOGIN ADMIN
@@ -176,6 +176,27 @@
           <div>
             <p class="text-[10px] font-extrabold uppercase tracking-widest text-sky-200">Ingat Waktu</p>
             <div id="realtime-clock" class="font-black text-sm sm:text-base text-white tracking-wider mt-0.5">--:--:-- WIB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIDGET MODE FOKUS / POMODORO TIMER -->
+      <div class="glass-card-clean p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4 border border-sky-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 rounded-2xl">
+            <i data-lucide="timer" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Mode Fokus (Pomodoro Timer)</h3>
+            <p class="text-xs text-slate-400 font-medium">25 Menit Belajar Fokus + 5 Menit Istirahat Singkat</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div id="pomodoro-display" class="font-mono text-3xl font-black text-sky-600 dark:text-sky-400 tracking-wider">25:00</div>
+          <div class="flex gap-1.5">
+            <button onclick="startPomodoro()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm"><i data-lucide="play" class="w-3.5 h-3.5"></i> Mulai</button>
+            <button onclick="pausePomodoro()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1"><i data-lucide="pause" class="w-3.5 h-3.5"></i> Jeda</button>
+            <button onclick="resetPomodoro()" class="px-3.5 py-2 bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 hover:bg-red-100 rounded-xl text-xs font-bold transition-all flex items-center gap-1"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset</button>
           </div>
         </div>
       </div>
@@ -419,7 +440,7 @@
                 <th class="p-4">Jenis</th>
                 <th class="p-4">Deadline</th>
                 <th class="p-4">Status Pengerjaan</th>
-                <th class="p-4">Status Pengumpulan</th>
+                <th class="p-4">Status Pengumpulkan</th>
                 <th class="p-4">File & Catatan</th>
                 <th class="p-4 text-center">Aksi</th>
               </tr>
@@ -471,6 +492,9 @@
           <p class="text-xs text-slate-500 mt-0.5 font-medium">Pemasukan & Pengeluaran dengan perhitungan persentase otomatis dan sistem PIN keamanan.</p>
         </div>
         <div id="finance-buttons-group" class="hidden gap-2">
+          <button onclick="exportFinancePDF()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Ekspor PDF
+          </button>
           <button onclick="openFinanceModal('pemasukan')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-100 dark:shadow-none flex items-center gap-1.5 transition-all">
             <i data-lucide="plus-circle" class="w-4 h-4"></i> Pemasukan
           </button>
@@ -628,27 +652,33 @@
     </div>
   </div>
 
-  <!-- MODAL LOGIN ADMIN / TAMU -->
+  <!-- MODAL LOGIN ADMIN / TAMU (DUA SESI) -->
   <div id="modal-login" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100 dark:border-slate-800">
       <div class="text-center">
         <div class="w-12 h-12 bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-2"><i data-lucide="lock" class="w-6 h-6"></i></div>
         <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Autentikasi Portal</h3>
-        <p class="text-xs text-slate-500 mt-1">Masukkan PIN/Password untuk akses penuh atau masuk sebagai Tamu.</p>
+        <p class="text-xs text-slate-500 mt-1">Pilih Sesi Pengguna untuk Melanjutkan Workspace</p>
       </div>
       <form onsubmit="handleLogin(event)" class="space-y-3">
-        <input type="password" id="login-pin" placeholder="PIN ADMIN..." class="w-full text-center tracking-widest text-lg font-black px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 text-center">SESI 1: ADMIN WORKSPACE</label>
+          <input type="password" id="login-pin" placeholder="PIN ADMIN..." class="w-full text-center tracking-widest text-lg font-black px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required>
+        </div>
         <div id="login-error" class="hidden text-xs text-red-500 text-center font-bold">PIN Salah! Silakan coba lagi!</div>
-        <button type="submit" class="w-full py-3 bg-sky-600 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-200 dark:shadow-none hover:bg-sky-700 transition-all">MASUK SEBAGAI ADMIN</button>
+        <button type="submit" class="w-full py-3 bg-sky-600 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-200 dark:shadow-none hover:bg-sky-700 transition-all">MASUK SEBAGAI ADMIN (FULL ACCESS)</button>
       </form>
       <div class="relative flex py-1 items-center">
         <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
         <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-bold uppercase">Atau</span>
         <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
       </div>
-      <button type="button" onclick="handleLoginGuest()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2">
-        <i data-lucide="eye" class="w-4 h-4"></i> Masuk Sebagai Tamu (Lihat Saja)
-      </button>
+      <div class="space-y-1">
+        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center">SESI 2: MODE TAMU</label>
+        <button type="button" onclick="handleLoginGuest()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2">
+          <i data-lucide="eye" class="w-4 h-4"></i> Masuk Sebagai Tamu (Lihat Saja)
+        </button>
+      </div>
     </div>
   </div>
 
@@ -704,15 +734,17 @@
       <form onsubmit="saveTask(event)" class="space-y-3">
         <input type="hidden" id="task-id">
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Tugas</label><input type="text" id="task-name" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Jenis</label><select id="task-type" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Individu">Individu</option><option value="Kelompok">Kelompok</option></select></div>
+          <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Prioritas</label><select id="task-priority" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="High">Tinggi</option><option value="Medium" selected>Sedang</option><option value="Low">Rendah</option></select></div>
           <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Dosen</label><input type="text" id="task-lecturer" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
         </div>
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Deadline Akhir</label><input type="datetime-local" id="task-deadline" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
         <div class="grid grid-cols-2 gap-2">
           <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Status Pengerjaan</label><select id="task-status" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Belum dikerjakan">Belum dikerjakan</option><option value="Dalam pengerjaan">Dalam pengerjaan</option><option value="Selesai">Selesai</option></select></div>
-          <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Status Pengumpulan</label><select id="task-submission" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Belum dikumpulkan">Belum dikumpulkan</option><option value="Sudah dikumpulkan">Sudah dikumpulkan</option></select></div>
+          <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Status Pengumpulkan</label><select id="task-submission" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Belum dikumpulkan">Belum dikumpulkan</option><option value="Sudah dikumpulkan">Sudah dikumpulkan</option></select></div>
         </div>
+        <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Sub-tugas / Checklist (1 Baris = 1 Item)</label><textarea id="task-subtasks-input" rows="2" placeholder="Langkah 1&#10;Langkah 2" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white"></textarea></div>
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Upload File Dokumen</label><input type="file" id="task-file-input" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 dark:file:bg-sky-950 dark:file:text-sky-300"></div>
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Catatan Tugas</label><textarea id="task-summary" rows="3" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white"></textarea></div>
         <div class="flex justify-end gap-2 pt-2">
@@ -755,6 +787,7 @@
       <form onsubmit="saveFinance(event)" class="space-y-3">
         <input type="hidden" id="fin-type">
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1" id="fin-source-label">Keterangan / Sumber</label><input type="text" id="fin-source" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
+        <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori Transaksi</label><select id="fin-category" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 bg-transparent rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none dark:text-white"><option value="Makan & Minum">Makan & Minum</option><option value="Transportasi">Transportasi</option><option value="Buku & Kuliah">Buku & Kuliah</option><option value="Hiburan">Hiburan</option><option value="Lain-lain" selected>Lain-lain</option></select></div>
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Nominal (Rp)</label><input type="number" id="fin-amount" min="1000" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
         <div><label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal</label><input type="date" id="fin-date" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none bg-transparent dark:text-white" required></div>
         <div class="flex justify-end gap-2 pt-2">
@@ -765,7 +798,10 @@
     </div>
   </div>
 
-<!-- JAVASCRIPT SYSTEM LOGIC -->
+<!-- JAVASCRIPT SYSTEM LOGIC DENGAN SELEMBAR FITUR LENGKAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
 <script>
 const PIN_SECRET = "TOMMY";
 const FINANCE_PASSWORD = "PRAMONO";
@@ -798,11 +834,20 @@ let tasks = [];
 let agendas = [];
 let finances = [];
 let schedules = [];
+let notes = [];
+let budgetLimit = Number(localStorage.getItem('workspace_budget_limit') || 0);
+
 let flowchartInstance = null;
 let taskFlowchartInstance = null;
 let agendaFlowchartInstance = null;
 let isDataFetched = false;
 let currentCalendarDate = new Date();
+
+// VARIABEL POMODORO TIMER
+let pomodoroTimer = null;
+let pomodoroSecondsLeft = 25 * 60;
+let isPomodoroRunning = false;
+let pomodoroMode = 'work'; // 'work' atau 'break'
 
 async function fetchCloudData(silent = false) {
   if (!SCRIPT_URL || SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
@@ -813,12 +858,12 @@ async function fetchCloudData(silent = false) {
     const res = await fetch(SCRIPT_URL);
     const data = await res.json();
     
-    // Perbaikan: Hanya update data jika server benar-benar mengembalikan data
     if (data) {
-      if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) tasks = data.tasks;
-      if (data.agendas && Array.isArray(data.agendas) && data.agendas.length > 0) agendas = data.agendas;
-      if (data.finances && Array.isArray(data.finances) && data.finances.length > 0) finances = data.finances;
-      if (data.schedules && Array.isArray(data.schedules) && data.schedules.length > 0) schedules = data.schedules;
+      if (data.tasks && Array.isArray(data.tasks)) tasks = data.tasks;
+      if (data.agendas && Array.isArray(data.agendas)) agendas = data.agendas;
+      if (data.finances && Array.isArray(data.finances)) finances = data.finances;
+      if (data.schedules && Array.isArray(data.schedules)) schedules = data.schedules;
+      if (data.notes && Array.isArray(data.notes)) notes = data.notes;
     }
     
     isDataFetched = true;
@@ -829,7 +874,7 @@ async function fetchCloudData(silent = false) {
 }
 
 async function saveCloudData() {
-  const payload = { tasks, agendas, finances, schedules };
+  const payload = { tasks, agendas, finances, schedules, notes };
   saveLocalStorageDataLocally();
   refreshAllViews();
   
@@ -1073,6 +1118,7 @@ function loadLocalStorageData() {
   agendas = JSON.parse(localStorage.getItem('workspace_agendas') || '[]');
   finances = JSON.parse(localStorage.getItem('workspace_finances') || '[]');
   schedules = JSON.parse(localStorage.getItem('workspace_schedules') || JSON.stringify(defaultSchedules));
+  notes = JSON.parse(localStorage.getItem('workspace_notes') || '[]');
   refreshAllViews();
 }
 
@@ -1081,6 +1127,7 @@ function saveLocalStorageDataLocally() {
   localStorage.setItem('workspace_agendas', JSON.stringify(agendas));
   localStorage.setItem('workspace_finances', JSON.stringify(finances));
   localStorage.setItem('workspace_schedules', JSON.stringify(schedules));
+  localStorage.setItem('workspace_notes', JSON.stringify(notes));
 }
 
 function saveLocalStorageData() {
@@ -1088,7 +1135,7 @@ function saveLocalStorageData() {
 }
 
 function exportDataPublik() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks, agendas, schedules, finances }, null, 2));
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks, agendas, schedules, finances, notes }, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
   downloadAnchor.setAttribute("download", `maspram_backup_${new Date().toISOString().split('T')[0]}.json`);
@@ -1109,6 +1156,7 @@ function importDataPublik(event) {
         tasks = imported.tasks; agendas = imported.agendas;
         if (imported.schedules) schedules = imported.schedules;
         if (imported.finances) finances = imported.finances;
+        if (imported.notes) notes = imported.notes;
         saveLocalStorageData();
         showToast('Data berhasil dipulihkan!', 'success');
       } else { alert('Format file tidak valid!'); }
@@ -1132,7 +1180,7 @@ function renderAuthBar() {
   if (isAuthenticated) {
     container.innerHTML = `
       <span class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold rounded-xl border border-emerald-200 dark:border-emerald-900">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="hidden sm:inline">Admin Aktif</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="hidden sm:inline">Sesi 1: Admin</span>
       </span>
     `;
     if (lockBanner) lockBanner.classList.add('hidden');
@@ -1140,7 +1188,7 @@ function renderAuthBar() {
     if (btnAddAgenda) btnAddAgenda.classList.remove('hidden');
     if (btnAddSched) btnAddSched.classList.remove('hidden');
   } else {
-    container.innerHTML = `<button onclick="openLoginModal()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="lock" class="w-3.5 h-3.5"></i> LOGIN</button>`;
+    container.innerHTML = `<button onclick="openLoginModal()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all"><i data-lucide="lock" class="w-3.5 h-3.5"></i> PILIH SESI</button>`;
     if (lockBanner) lockBanner.classList.remove('hidden');
     if (btnAddTask) btnAddTask.classList.add('hidden');
     if (btnAddAgenda) btnAddAgenda.classList.add('hidden');
@@ -1164,7 +1212,7 @@ function handleLogin(e) {
     closeLoginModal(); 
     renderAuthBar(); 
     refreshAllViews();
-    showToast('Login berhasil sebagai Admin', 'success');
+    showToast('Login berhasil sebagai Sesi Admin', 'success');
   } else { 
     document.getElementById('login-error').classList.remove('hidden'); 
   }
@@ -1178,7 +1226,7 @@ function handleLoginGuest() {
   closeLoginModal();
   renderAuthBar();
   refreshAllViews();
-  showToast('Masuk sebagai Tamu (Lihat Saja)', 'info');
+  showToast('Masuk sebagai Sesi Tamu (Lihat Saja)', 'info');
 }
 
 function handleLogout() {
@@ -1189,7 +1237,7 @@ function handleLogout() {
   renderAuthBar(); 
   refreshAllViews();
   openLoginModal(); 
-  showToast('Berhasil logout', 'info');
+  showToast('Berhasil logout dari Sesi Admin', 'info');
 }
 
 function requestFinanceAccess() {
@@ -1277,13 +1325,13 @@ function renderDashboardShortcuts() {
     todayHtml = `<p class="text-xs text-slate-400 italic">Tidak ada agenda atau jadwal khusus hari ini.</p>`;
   } else {
     todaySchedules.forEach(s => {
-      todayHtml += `<div class="p-2.5 bg-sky-50 dark:bg-sky-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-sky-700 dark:text-sky-300">${s.subject}</span><span class="font-mono text-[11px] text-slate-500">${s.time}</span></div>`;
+      todayHtml += `<div class="p-2.5 bg-sky-50 dark:bg-sky-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-sky-700 dark:text-sky-300">${escapeHtml(s.subject)}</span><span class="font-mono text-[11px] text-slate-500">${escapeHtml(s.time)}</span></div>`;
     });
     todayAgendas.forEach(a => {
-      todayHtml += `<div class="p-2.5 bg-amber-50 dark:bg-amber-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-amber-700 dark:text-amber-300">Agenda: ${a.title}</span><span class="text-[11px] text-slate-500">${formatDateTime(a.datetime)}</span></div>`;
+      todayHtml += `<div class="p-2.5 bg-amber-50 dark:bg-amber-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-amber-700 dark:text-amber-300">Agenda: ${escapeHtml(a.title)}</span><span class="text-[11px] text-slate-500">${formatDateTime(a.datetime)}</span></div>`;
     });
     todayTasks.forEach(t => {
-      todayHtml += `<div class="p-2.5 bg-red-50 dark:bg-red-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-red-700 dark:text-red-300">Deadline Tugas: ${t.name}</span><span class="text-[11px] text-slate-500">${formatDateTime(t.deadline)}</span></div>`;
+      todayHtml += `<div class="p-2.5 bg-red-50 dark:bg-red-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-red-700 dark:text-red-300">Deadline Tugas: ${escapeHtml(t.name)}</span><span class="text-[11px] text-slate-500">${formatDateTime(t.deadline)}</span></div>`;
     });
   }
   todayListEl.innerHTML = todayHtml;
@@ -1298,13 +1346,13 @@ function renderDashboardShortcuts() {
     tomorrowHtml = `<p class="text-xs text-slate-400 italic">Tidak ada agenda atau jadwal khusus besok.</p>`;
   } else {
     tomorrowSchedules.forEach(s => {
-      tomorrowHtml += `<div class="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-indigo-700 dark:text-indigo-300">${s.subject}</span><span class="font-mono text-[11px] text-slate-500">${s.time}</span></div>`;
+      tomorrowHtml += `<div class="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-indigo-700 dark:text-indigo-300">${escapeHtml(s.subject)}</span><span class="font-mono text-[11px] text-slate-500">${escapeHtml(s.time)}</span></div>`;
     });
     tomorrowAgendas.forEach(a => {
-      tomorrowHtml += `<div class="p-2.5 bg-purple-50 dark:bg-purple-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-purple-700 dark:text-purple-300">Agenda: ${a.title}</span><span class="text-[11px] text-slate-500">${formatDateTime(a.datetime)}</span></div>`;
+      tomorrowHtml += `<div class="p-2.5 bg-purple-50 dark:bg-purple-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-purple-700 dark:text-purple-300">Agenda: ${escapeHtml(a.title)}</span><span class="text-[11px] text-slate-500">${formatDateTime(a.datetime)}</span></div>`;
     });
     tomorrowTasks.forEach(t => {
-      tomorrowHtml += `<div class="p-2.5 bg-rose-50 dark:bg-rose-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-rose-700 dark:text-rose-300">Deadline Tugas: ${t.name}</span><span class="text-[11px] text-slate-500">${formatDateTime(t.deadline)}</span></div>`;
+      tomorrowHtml += `<div class="p-2.5 bg-rose-50 dark:bg-rose-950/50 rounded-xl flex justify-between items-center text-xs"><span class="font-bold text-rose-700 dark:text-rose-300">Deadline Tugas: ${escapeHtml(t.name)}</span><span class="text-[11px] text-slate-500">${formatDateTime(t.deadline)}</span></div>`;
     });
   }
   tomorrowListEl.innerHTML = tomorrowHtml;
@@ -1532,7 +1580,7 @@ function renderTasks() {
 
   const total = tasks.length, done = tasks.filter(t => t.status === 'Selesai').length;
   const prog = tasks.filter(t => t.status === 'Dalam pengerjaan').length, todo = tasks.filter(t => t.status === 'Belum dikerjakan').length;
-  const pDone = total > 0 ? Math.round((done/total)*100) : 0, pProg = total > 0 ? Math.round((prog/total)*100) : 0, pTodo = total > 0 ? Math.round((todo/total)*100) : 0;
+  const pDone = total > 0 ? Math.round((done/total)*100) : 0, pProg = total > 0 ? Math.round((prog/total)*100) : 0, pTodo = total > 0 ? Math.round((todo/todo)*100) : 0;
 
   document.getElementById('task-pct-done').innerText = `${pDone}%`; document.getElementById('task-count-done').innerText = `${done} Tugas`;
   document.getElementById('task-pct-prog').innerText = `${pProg}%`; document.getElementById('task-count-prog').innerText = `${prog} Tugas`;
@@ -1548,9 +1596,39 @@ function renderTasks() {
     let subClass = 'bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400';
     if (t.submission === 'Sudah dikumpulkan') subClass = 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400';
 
+    let priorityBadge = '';
+    if (t.priority === 'High') priorityBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300 border border-red-300">Tinggi</span>';
+    else if (t.priority === 'Medium') priorityBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-300">Sedang</span>';
+    else priorityBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300">Rendah</span>';
+
+    // Sub-tugas HTML rendering
+    const subtasks = t.subtasks || [];
+    const completedSub = subtasks.filter(s => s.completed).length;
+    let subtasksHtml = '';
+    if (subtasks.length > 0) {
+      subtasksHtml = `
+        <div class="mt-2 text-[11px] bg-slate-50 dark:bg-slate-800/60 p-2 rounded-xl space-y-1 border border-slate-200/60 dark:border-slate-700">
+          <div class="font-bold text-slate-500">Checklist (${completedSub}/${subtasks.length}):</div>
+          ${subtasks.map((st, sIdx) => `
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" ${st.completed ? 'checked' : ''} ${!isAuthenticated ? 'disabled' : ''} onchange="toggleSubtask('${t.id}', ${sIdx})" class="rounded text-sky-600 focus:ring-sky-500">
+              <span class="${st.completed ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(st.title)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+    }
+
     return `
       <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all border-b border-slate-100 dark:border-slate-800">
-        <td class="p-4"><div class="font-extrabold text-slate-900 dark:text-white">${escapeHtml(t.name)}</div><div class="text-[11px] text-slate-400">Dosen: ${escapeHtml(t.lecturer)}</div></td>
+        <td class="p-4">
+          <div class="flex items-center gap-2">
+            <div class="font-extrabold text-slate-900 dark:text-white">${escapeHtml(t.name)}</div>
+            ${priorityBadge}
+          </div>
+          <div class="text-[11px] text-slate-400">Dosen: ${escapeHtml(t.lecturer)}</div>
+          ${subtasksHtml}
+        </td>
         <td class="p-4"><span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold ${t.type==='Individu'?'bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-300':'bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-300'}">${t.type}</span></td>
         <td class="p-4 font-bold text-slate-600 dark:text-slate-300">${formatDateTime(t.deadline)}</td>
         <td class="p-4">
@@ -1564,16 +1642,25 @@ function renderTasks() {
           ${t.fileData ? `<a href="${t.fileData}" download="${escapeHtml(t.fileName || 'file_tugas')}" class="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline"><i data-lucide="download" class="w-3 h-3"></i> ${escapeHtml(t.fileName || 'Unduh File')}</a>` : ''}
         </td>
         <td class="p-4 text-center">
-          ${isAuthenticated ? `
-            <div class="flex items-center justify-center gap-1">
+          <div class="flex items-center justify-center gap-1">
+            ${t.deadline ? `<button onclick="exportToGoogleCalendar('${escapeHtml(t.name)}', '${t.deadline}', 'Tugas Kuliah: ${escapeHtml(t.lecturer)}')" class="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-lg" title="Tambah ke Google Calendar"><i data-lucide="calendar-plus" class="w-4 h-4"></i></button>` : ''}
+            ${isAuthenticated ? `
               <button onclick="editTask('${t.id}')" class="p-1 text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Edit Tugas"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
               <button onclick="deleteTask('${t.id}')" class="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Hapus Tugas"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </div>
-          ` : ''}
+            ` : ''}
+          </div>
         </td>
       </tr>`;
   }).join('');
   initLucide();
+}
+
+function toggleSubtask(taskId, subIdx) {
+  const t = tasks.find(x => x.id === taskId);
+  if (t && t.subtasks && t.subtasks[subIdx]) {
+    t.subtasks[subIdx].completed = !t.subtasks[subIdx].completed;
+    saveLocalStorageData();
+  }
 }
 
 function updateTaskStatus(id, val) { const t = tasks.find(x => x.id === id); if(t) { t.status = val; saveLocalStorageData(); } }
@@ -1584,10 +1671,12 @@ function openTaskModal() {
   document.getElementById('task-id').value = '';
   document.getElementById('task-name').value = '';
   document.getElementById('task-type').value = 'Individu';
+  document.getElementById('task-priority').value = 'Medium';
   document.getElementById('task-lecturer').value = '';
   document.getElementById('task-deadline').value = '';
   document.getElementById('task-status').value = 'Belum dikerjakan';
   document.getElementById('task-submission').value = 'Belum dikumpulkan';
+  document.getElementById('task-subtasks-input').value = '';
   document.getElementById('task-summary').value = '';
   document.getElementById('task-file-input').value = '';
   document.getElementById('modal-task').classList.remove('hidden'); 
@@ -1600,10 +1689,12 @@ function editTask(id) {
     document.getElementById('task-id').value = t.id;
     document.getElementById('task-name').value = t.name;
     document.getElementById('task-type').value = t.type;
+    document.getElementById('task-priority').value = t.priority || 'Medium';
     document.getElementById('task-lecturer').value = t.lecturer;
     document.getElementById('task-deadline').value = t.deadline;
     document.getElementById('task-status').value = t.status;
     document.getElementById('task-submission').value = t.submission;
+    document.getElementById('task-subtasks-input').value = (t.subtasks || []).map(s => s.title).join('\n');
     document.getElementById('task-summary').value = t.summary || '';
     document.getElementById('task-file-input').value = '';
     document.getElementById('modal-task').classList.remove('hidden');
@@ -1617,26 +1708,33 @@ function saveTask(e) {
   const id = document.getElementById('task-id').value;
   const fileInput = document.getElementById('task-file-input');
   
+  const subtasksRaw = document.getElementById('task-subtasks-input').value;
+  const parsedSubtasks = subtasksRaw.split('\n').filter(line => line.trim() !== '').map(line => ({ title: line.trim(), completed: false }));
+
   const processTaskData = (fileData, fileName) => {
     const existing = id ? tasks.find(x => x.id === id) : null;
-    const data = {
+    
+    const updatedData = {
       id: id || 'task_' + Date.now(),
       name: document.getElementById('task-name').value,
       type: document.getElementById('task-type').value,
+      priority: document.getElementById('task-priority').value,
       lecturer: document.getElementById('task-lecturer').value,
       deadline: document.getElementById('task-deadline').value,
       status: document.getElementById('task-status').value,
       submission: document.getElementById('task-submission').value,
       summary: document.getElementById('task-summary').value,
-      fileName: fileName !== undefined ? fileName : (existing ? existing.fileName : null),
-      fileData: fileData !== undefined ? fileData : (existing ? existing.fileData : null)
+      subtasks: parsedSubtasks,
+      fileName: fileInput.files[0] ? fileName : (existing ? existing.fileName : null),
+      fileData: fileInput.files[0] ? fileData : (existing ? existing.fileData : null)
     };
 
     if (id) {
-      tasks = tasks.map(x => x.id === id ? data : x);
+      tasks = tasks.map(x => x.id === id ? updatedData : x);
     } else {
-      tasks.push(data);
+      tasks.push(updatedData);
     }
+
     saveLocalStorageData();
     closeTaskModal();
     showToast('Tugas berhasil disimpan', 'success');
@@ -1649,7 +1747,7 @@ function saveTask(e) {
     };
     reader.readAsDataURL(fileInput.files[0]);
   } else {
-    processTaskData(undefined, undefined);
+    processTaskData(null, null);
   }
 }
 
@@ -1700,7 +1798,12 @@ function renderAgendas() {
             ` : ''}
           </div>
         </div>
-        ${isAuthenticated ? `<div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2"><button onclick="editAgenda('${a.id}')" class="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Edit Agenda"><i data-lucide="edit-3" class="w-4 h-4"></i></button><button onclick="deleteAgenda('${a.id}')" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Hapus Agenda"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+          <button onclick="exportToGoogleCalendar('${escapeHtml(a.title)}', '${a.datetime}', 'Lokasi: ${escapeHtml(a.location)}')" class="px-3 py-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-bold rounded-xl text-[11px] flex items-center gap-1">
+            <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> GCalendar
+          </button>
+          ${isAuthenticated ? `<div class="flex gap-1"><button onclick="editAgenda('${a.id}')" class="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Edit Agenda"><i data-lucide="edit-3" class="w-4 h-4"></i></button><button onclick="deleteAgenda('${a.id}')" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition-all" title="Hapus Agenda"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+        </div>
       </div>`;
   }).join('');
   
@@ -1710,8 +1813,6 @@ function renderAgendas() {
 
 function previewAgendaDoc(id) {
   const ag = agendas.find(x => x.id === id);
-  
-  // Perbaikan: Validasi jika objek agenda atau data file-nya tidak ada
   if (!ag || !ag.fileData) {
     showToast('Berkas surat/undangan belum diunggah untuk agenda ini.', 'danger');
     return;
@@ -1801,7 +1902,6 @@ function saveAgenda(e) {
   const processAgendaData = (fileData, fileName) => {
     const existing = id ? agendas.find(x => x.id === id) : null;
     
-    // Perbaikan: Memastikan file lama tetap dipertahankan jika tidak mengunggah file baru saat mode edit
     const data = {
       id: id || 'agenda_' + Date.now(), 
       title: document.getElementById('agenda-title').value, 
@@ -1810,8 +1910,8 @@ function saveAgenda(e) {
       datetime: document.getElementById('agenda-datetime').value,
       duration: document.getElementById('agenda-duration').value, 
       location: document.getElementById('agenda-location').value,
-      invitationFile: fileName !== undefined ? fileName : (existing ? existing.invitationFile : null),
-      fileData: fileData !== undefined ? fileData : (existing ? existing.fileData : null)
+      invitationFile: fileName !== undefined && fileName !== null ? fileName : (existing ? existing.invitationFile : null),
+      fileData: fileData !== undefined && fileData !== null ? fileData : (existing ? existing.fileData : null)
     };
 
     if (id) {
@@ -1832,8 +1932,7 @@ function saveAgenda(e) {
     };
     reader.readAsDataURL(invitationFile);
   } else {
-    // Jika tidak memilih file baru, teruskan nilai yang sudah ada sebelumnya
-    processAgendaData(undefined, undefined);
+    processAgendaData(null, null);
   }
 }
 
@@ -1866,6 +1965,11 @@ function renderFinance() {
     document.getElementById('fin-expense-pct').innerText = `[Terkunci]`;
   }
 
+  // Notifikasi Anggaran Bulanan
+  if (isFinanceUnlocked && budgetLimit > 0 && totalExp >= budgetLimit) {
+    showToast(`Peringatan: Pengeluaran Anda (${formatIDR(totalExp)}) telah melebihi batas anggaran (${formatIDR(budgetLimit)})!`, 'danger');
+  }
+
   const tbody = document.getElementById('finance-table-body');
   if (!isFinanceUnlocked) {
     tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center"><button onclick="requestFinanceAccess()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md">Masukkan Password untuk Membuka Keuangan</button></td></tr>`;
@@ -1875,7 +1979,11 @@ function renderFinance() {
   
   tbody.innerHTML = finances.map(f => `
     <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all border-b border-slate-100 dark:border-slate-800">
-      <td class="p-4 text-slate-500">${f.date}</td><td class="p-4 font-bold text-slate-900 dark:text-white">${escapeHtml(f.source)}</td>
+      <td class="p-4 text-slate-500">${f.date}</td>
+      <td class="p-4">
+        <div class="font-bold text-slate-900 dark:text-white">${escapeHtml(f.source)}</div>
+        <div class="text-[10px] text-slate-400 font-bold uppercase">${escapeHtml(f.category || 'Lain-lain')}</div>
+      </td>
       <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${f.type==='pemasukan'?'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300':'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300'}">${f.type}</span></td>
       <td class="p-4 text-right font-black ${f.type==='pemasukan'?'text-emerald-600 dark:text-emerald-400':'text-red-600 dark:text-red-400'}">${f.type==='pemasukan'?'+':'-'} ${formatIDR(f.amount)}</td>
       <td class="p-4 text-center">${isAuthenticated ? `<button onclick="deleteFinance('${f.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : '-'}</td>
@@ -1885,19 +1993,114 @@ function renderFinance() {
 function openFinanceModal(type) {
   if (!isAuthenticated || !isFinanceUnlocked) return alert('Akses ditolak. Anda harus login admin dan membuka keuangan dengan password.');
   document.getElementById('fin-type').value = type;
+  document.getElementById('fin-source').value = '';
+  document.getElementById('fin-amount').value = '';
+  document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fin-category').value = 'Lain-lain';
   document.getElementById('modal-finance').classList.remove('hidden');
 }
 function closeFinanceModal() { document.getElementById('modal-finance').classList.add('hidden'); }
+
 function saveFinance(e) {
   e.preventDefault();
   finances.push({
-    id: 'fin_' + Date.now(), type: document.getElementById('fin-type').value,
-    source: document.getElementById('fin-source').value, amount: Number(document.getElementById('fin-amount').value),
-    date: document.getElementById('fin-date').value
+    id: 'fin_' + Date.now(), 
+    type: document.getElementById('fin-type').value,
+    source: document.getElementById('fin-source').value, 
+    amount: Number(document.getElementById('fin-amount').value),
+    date: document.getElementById('fin-date').value,
+    category: document.getElementById('fin-category').value
   });
   saveLocalStorageData(); closeFinanceModal(); showToast('Transaksi disimpan', 'success');
 }
 function deleteFinance(id) { if(confirm('Hapus transaksi?')) { finances = finances.filter(x => x.id !== id); saveLocalStorageData(); } }
+
+// EKSPOR REKAPITULASI KEUANGAN KE PDF
+function exportFinancePDF() {
+  if (!isFinanceUnlocked) return alert('Buka password keuangan terlebih dahulu!');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text('Laporan Rekapitulasi Keuangan MasPram Pro', 14, 20);
+  doc.setFontSize(10);
+  doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`, 14, 28);
+
+  const tableData = finances.map(f => [
+    f.date,
+    f.source,
+    f.category || 'Lain-lain',
+    f.type.toUpperCase(),
+    formatIDR(f.amount)
+  ]);
+
+  doc.autoTable({
+    startY: 35,
+    head: [['Tanggal', 'Keterangan', 'Kategori', 'Jenis', 'Nominal']],
+    body: tableData,
+    theme: 'grid'
+  });
+
+  doc.save(`Laporan_Keuangan_MasPram_${new Date().toISOString().split('T')[0]}.pdf`);
+  showToast('Laporan Keuangan PDF berhasil dibuat', 'success');
+}
+
+// INTEGRASI GOOGLE CALENDAR LINK GENERATOR
+function exportToGoogleCalendar(title, datetimeStr, details) {
+  if (!datetimeStr) return alert('Waktu tidak valid untuk kalender!');
+  const startDate = new Date(datetimeStr);
+  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Durasi default 1 jam
+
+  const formatGCalDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+  const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${encodeURIComponent(details)}`;
+  window.open(gcalUrl, '_blank');
+}
+
+// POMODORO FOCUS TIMER LOGIC
+function startPomodoro() {
+  if (isPomodoroRunning) return;
+  isPomodoroRunning = true;
+  pomodoroTimer = setInterval(() => {
+    if (pomodoroSecondsLeft > 0) {
+      pomodoroSecondsLeft--;
+      updatePomodoroUI();
+    } else {
+      clearInterval(pomodoroTimer);
+      isPomodoroRunning = false;
+      if (pomodoroMode === 'work') {
+        showToast('Sesi Fokus Selesai! Waktunya Istirahat 5 Menit.', 'success');
+        pomodoroMode = 'break';
+        pomodoroSecondsLeft = 5 * 60;
+      } else {
+        showToast('Waktu Istirahat Selesai! Kembali Fokus.', 'info');
+        pomodoroMode = 'work';
+        pomodoroSecondsLeft = 25 * 60;
+      }
+      updatePomodoroUI();
+    }
+  }, 1000);
+}
+
+function pausePomodoro() {
+  clearInterval(pomodoroTimer);
+  isPomodoroRunning = false;
+}
+
+function resetPomodoro() {
+  pausePomodoro();
+  pomodoroMode = 'work';
+  pomodoroSecondsLeft = 25 * 60;
+  updatePomodoroUI();
+}
+
+function updatePomodoroUI() {
+  const m = Math.floor(pomodoroSecondsLeft / 60);
+  const s = pomodoroSecondsLeft % 60;
+  const timeStr = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const displayEl = document.getElementById('pomodoro-display');
+  if (displayEl) displayEl.innerText = timeStr;
+}
 
 function openSearchModal() {
   document.getElementById('global-search-input').value = '';
